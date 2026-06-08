@@ -2,7 +2,7 @@ export interface ModuleConfig {
   id: string;
   title: string;
   path: string;
-  icon: string; // Hier kun je later eventueel Lucide-react iconen aan koppelen
+  icon?: string; // Hier kun je later eventueel Lucide-react iconen aan koppelen
 }
 
 export const DIKIS_MODULES: ModuleConfig[] = [
