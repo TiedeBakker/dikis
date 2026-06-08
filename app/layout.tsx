@@ -27,21 +27,29 @@ export default function RootLayout({
           </header>
 
           {/* CENTRALE CONTENT OMGEVING */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
             {children}
           </main>
           
         </div>
 
-        {/* MENU-BUTTON-BALK */}
-        {/* Mobiel: onderaan, horizontaal scrolbaar | Desktop: links, verticaal scrolbaar */}
-        <nav className="bg-white border-t border-gray-200 md:border-t-0 md:border-r md:w-64 flex flex-row md:flex-col order-2 md:order-1 h-16 md:h-full overflow-x-auto md:overflow-y-auto overflow-y-hidden md:overflow-x-hidden select-none whitespace-nowrap md:whitespace-normal scrollbar-none z-20 shadow-lg md:shadow-none">
-          <div className="flex md:flex-col p-2 gap-2 w-full">
+       {/* MENU-BUTTON-BALK */}
+        {/* Mobiel (default): onderaan gefixeerd, h-16 hoog, flex-row */}
+        {/* Desktop (md:): links gefixeerd, h-full hoog, w-64 breed, flex-col */}
+        <nav className="bg-white border-t border-gray-200 md:border-t-0 md:border-r 
+                        fixed bottom-0 left-0 right-0 h-16 flex flex-row 
+                        md:relative md:h-full md:w-64 md:flex-col 
+                        overflow-x-auto md:overflow-y-auto overflow-y-hidden md:overflow-x-hidden 
+                        select-none whitespace-nowrap md:whitespace-normal z-20 shadow-lg md:shadow-none">
+          <div className="flex flex-row md:flex-col p-2 gap-2 w-full h-full items-center md:items-stretch">
             {DIKIS_MODULES.map((module) => (
               <Link
                 key={module.id}
                 href={module.path}
-                className="inline-flex md:flex items-center justify-center md:justify-start px-4 py-2 md:py-3 rounded-lg bg-gray-100 hover:bg-blue-100 hover:text-blue-900 font-medium transition-colors text-sm md:text-base min-w-[120px] md:min-w-0"
+                className="inline-flex items-center justify-center md:justify-start 
+                           px-4 py-2 md:py-3 rounded-lg bg-gray-100 hover:bg-blue-100 hover:text-blue-900 
+                           font-medium transition-colors text-sm md:text-base 
+                           min-w-[120px] md:min-w-0 h-10 md:h-auto"
               >
                 {module.title}
               </Link>
