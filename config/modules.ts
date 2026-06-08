@@ -7,7 +7,7 @@ export interface ModuleConfig {
 
 export const DIKIS_MODULES: ModuleConfig[] = [
   { id: 'home', title: 'Dashboard', path: '/' },
-  { id: 'logboek', title: 'Logboek Invoer', path: '/modules/logboek' },
+  { id: 'logboek', title: 'Logboek Invoer', path: '/modules/logboek',icon: 'edit-icon' },
   { id: 'metingen', title: 'Meetreeksen', path: '/modules/metingen' },
   { id: 'analyse', title: 'Data Analyse', path: '/modules/analyse' },
 ];
