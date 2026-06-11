@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 // Types voor de properties die we van page.tsx krijgen
 interface MetingenFormProps {
@@ -11,9 +11,16 @@ interface MetingenFormProps {
 }
 
 export default function MetingenForm({ personen, gebouwen, parameters, actie }: MetingenFormProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  // State voor Object zoeken
+  const [searchObject, setSearchObject] = useState("");
   const [selectedObjectId, setSelectedObjectId] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showObjectDropdown, setShowObjectDropdown] = useState(false);
+
+  // State voor Parameter zoeken
+  const [searchParameter, setSearchParameter] = useState("");
+  const [selectedParameterId, setSelectedParameterId] = useState("");
+  const [showParameterDropdown, setShowParameterDropdown] = useState(false);
+
   const formRef = useRef<HTMLFormElement>(null);
 
   // Combineer personen en gebouwen tot één makkelijk doorzoekbare lijst
@@ -30,9 +37,14 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
     }))
   ];
 
-  // Filter logica
+  // Filter logica voor Objecten
   const gefilterdeObjecten = alleObjecten.filter(obj => 
-    obj.naam.toLowerCase().includes(searchTerm.toLowerCase())
+    obj.naam.toLowerCase().includes(searchObject.toLowerCase())
+  );
+
+  // Filter logica voor Parameters
+  const gefilterdeParameters = parameters.filter(param => 
+    param.naam.toLowerCase().includes(searchParameter.toLowerCase())
   );
 
   return (
@@ -45,8 +57,10 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
           await actie(formData);
           // Reset formulier na succesvol opslaan
           formRef.current?.reset();
-          setSearchTerm("");
+          setSearchObject("");
           setSelectedObjectId("");
+          setSearchParameter("");
+          setSelectedParameterId("");
         }} 
         className="space-y-4"
       >
@@ -54,26 +68,24 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
         {/* SLIM OBJECT ZOEKVELD */}
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-1">Zoek Object</label>
-          
-          {/* De verborgen input die de daadwerkelijke UUID naar de server stuurt */}
           <input type="hidden" name="objectId" value={selectedObjectId} required />
           
           <input 
             type="text"
             placeholder="Typ een naam of straat..."
             className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            value={searchTerm}
+            value={searchObject}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
+              setSearchObject(e.target.value);
               setSelectedObjectId(""); // Reset ID als gebruiker weer gaat typen
-              setShowDropdown(true);
+              setShowObjectDropdown(true);
             }}
-            onFocus={() => setShowDropdown(true)}
+            onFocus={() => setShowObjectDropdown(true)}
+            onBlur={() => setTimeout(() => setShowObjectDropdown(false), 200)} // Timeout zorgt dat de klik op een dropdown-item nog geregistreerd wordt
           />
 
-          {/* DROPDOWN MET RESULTATEN */}
-          {showDropdown && searchTerm.length > 0 && (
-            <div className="absolute z-20 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl">
+          {showObjectDropdown && searchObject.length > 0 && (
+            <div className="absolute z-30 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl">
               {gefilterdeObjecten.length === 0 ? (
                 <div className="p-3 text-sm text-gray-500">Geen objecten gevonden...</div>
               ) : (
@@ -82,10 +94,10 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
                     key={obj.id}
                     type="button"
                     className="w-full text-left p-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 flex justify-between items-center"
-                    onClick={() => {
-                      setSearchTerm(obj.naam);
+                    onMouseDown={() => { // onMouseDown triggert vóór onBlur van de input
+                      setSearchObject(obj.naam);
                       setSelectedObjectId(obj.id);
-                      setShowDropdown(false);
+                      setShowObjectDropdown(false);
                     }}
                   >
                     <span className="font-medium text-gray-900">{obj.naam}</span>
@@ -97,15 +109,47 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
           )}
         </div>
 
-        {/* PARAMETER KEUZE */}
-        <div>
+        {/* SLIM PARAMETER ZOEKVELD */}
+        <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-1">Wat meet je?</label>
-          <select name="parameterId" className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-            <option value="">Kies een parameter...</option>
-            {parameters.map(param => (
-              <option key={param.id} value={param.id}>{param.naam}</option>
-            ))}
-          </select>
+          <input type="hidden" name="parameterId" value={selectedParameterId} required />
+          
+          <input 
+            type="text"
+            placeholder="Zoek parameter..."
+            className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={searchParameter}
+            onChange={(e) => {
+              setSearchParameter(e.target.value);
+              setSelectedParameterId(""); 
+              setShowParameterDropdown(true);
+            }}
+            onFocus={() => setShowParameterDropdown(true)}
+            onBlur={() => setTimeout(() => setShowParameterDropdown(false), 200)}
+          />
+
+          {showParameterDropdown && searchParameter.length > 0 && (
+            <div className="absolute z-20 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl">
+              {gefilterdeParameters.length === 0 ? (
+                <div className="p-3 text-sm text-gray-500">Geen parameters gevonden...</div>
+              ) : (
+                gefilterdeParameters.map(param => (
+                  <button 
+                    key={param.id}
+                    type="button"
+                    className="w-full text-left p-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                    onMouseDown={() => {
+                      setSearchParameter(param.naam);
+                      setSelectedParameterId(param.id);
+                      setShowParameterDropdown(false);
+                    }}
+                  >
+                    <span className="font-medium text-gray-900">{param.naam}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* WAARDE INVOER */}
@@ -123,7 +167,7 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
 
         <button 
           type="submit" 
-          disabled={!selectedObjectId} // Knop is pas actief als er écht een object uit de lijst is geklikt
+          disabled={!selectedObjectId || !selectedParameterId} // Nu vereisen we BEIDE ID's voordat je kunt opslaan
           className="w-full bg-blue-900 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-blue-800 transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           Meting Opslaan
