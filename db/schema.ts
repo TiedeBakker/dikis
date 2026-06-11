@@ -1,5 +1,82 @@
 import { sql } from "drizzle-orm";
-import { text, sqliteTable } from "drizzle-orm/sqlite-core";
+import { text, sqliteTable, real } from "drizzle-orm/sqlite-core";
+
+// ==========================================
+// 1. MOEDERTABELLEN (Beheer primair via PC)
+// ==========================================
+
+export const personen = sqliteTable("personen", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  voornamen: text("voornamen").notNull(),
+  tussenvoegsel: text("tussenvoegsel"),
+  achternaam: text("achternaam").notNull(),
+  // Datumvelden opslaan als ISO tekst strings (YYYY-MM-DD) in SQLite
+  geboortedatum: text("geboortedatum"), 
+  datumOverlijden: text("datum_overlijden"),
+});
+
+export const gebouwen = sqliteTable("gebouwen", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  straat: text("straat").notNull(),
+  nummer: text("nummer").notNull(), // Tekst, i.v.m. toevoegingen zoals '12-A'
+  plaats: text("plaats").notNull(),
+  korteAanduiding: text("korte_aanduiding"),
+  postcode: text("postcode"),
+  // Real is perfect voor coördinaten/decimalen
+  xCoordinaat: real("x_coordinaat"), 
+  yCoordinaat: real("y_coordinaat"),
+});
+
+export const parameters = sqliteTable("parameters", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),
+  eenheidId: text("eenheid_id"), // Optionele link naar toekomstige eenheden-tabel
+  toelichting: text("toelichting"),
+});
+
+export const aspecttypen = sqliteTable("aspecttypen", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  aanduiding: text("aanduiding").notNull(),
+  toelichting: text("toelichting"),
+});
+
+// ==========================================
+// 2. INVOER TABELLEN (App & PC)
+// ==========================================
+
+export const metingen = sqliteTable("metingen", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  
+  // Polymorfe koppeling naar Objecten (Personen of Gebouwen)
+  objectId: text("object_id").notNull(),
+  objectTabel: text("object_tabel").notNull(), // Bijv. 'personen' of 'gebouwen'
+  
+  // Koppeling naar WAT er gemeten wordt
+  parameterId: text("parameter_id").notNull(),
+  
+  // Numerieke meetwaarde
+  waarde: real("waarde").notNull(),
+  
+  // Tijdstip
+  datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+});
+
+export const aspecten = sqliteTable("aspecten", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  
+  // Polymorfe koppeling naar Objecten
+  objectId: text("object_id").notNull(),
+  objectTabel: text("object_tabel").notNull(),
+  
+  // Koppeling naar soort aspect
+  aspecttypeId: text("aspecttype_id").notNull(),
+  
+  // Tekstuele waarneming/aspect
+  waarde: text("waarde").notNull(),
+  
+  // Tijdstip
+  datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+});
 
 export const logboek = sqliteTable("logboek", {
   // De primary key genereren we direct als een unieke tekst (UUID)
