@@ -46,35 +46,17 @@ export const aspecttypen = sqliteTable("aspecttypen", {
 
 export const metingen = sqliteTable("metingen", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  
-  // Polymorfe koppeling naar Objecten (Personen of Gebouwen)
-  objectId: text("object_id").notNull(),
-  objectTabel: text("object_tabel").notNull(), // Bijv. 'personen' of 'gebouwen'
-  
-  // Koppeling naar WAT er gemeten wordt
+  objectId: text("object_id").notNull(), // Alleen nog de pure UUID!
   parameterId: text("parameter_id").notNull(),
-  
-  // Numerieke meetwaarde
   waarde: real("waarde").notNull(),
-  
-  // Tijdstip
   datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 });
 
 export const aspecten = sqliteTable("aspecten", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  
-  // Polymorfe koppeling naar Objecten
-  objectId: text("object_id").notNull(),
-  objectTabel: text("object_tabel").notNull(),
-  
-  // Koppeling naar soort aspect
+  objectId: text("object_id").notNull(), // Alleen nog de pure UUID!
   aspecttypeId: text("aspecttype_id").notNull(),
-  
-  // Tekstuele waarneming/aspect
   waarde: text("waarde").notNull(),
-  
-  // Tijdstip
   datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 });
 
