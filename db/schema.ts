@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, sqliteTable, real } from "drizzle-orm/sqlite-core";
+import { text, sqliteTable, real, integer } from "drizzle-orm/sqlite-core";
 
 // ==========================================
 // 1. MOEDERTABELLEN (Beheer primair via PC)
@@ -13,6 +13,7 @@ export const personen = sqliteTable("personen", {
   // Datumvelden opslaan als ISO tekst strings (YYYY-MM-DD) in SQLite
   geboortedatum: text("geboortedatum"), 
   datumOverlijden: text("datum_overlijden"),
+  telefoonnummer: text('telefoonnummer'),
 });
 
 export const gebouwen = sqliteTable("gebouwen", {
@@ -78,4 +79,16 @@ export const logboek = sqliteTable("logboek", {
   
   // Optioneel: metadata zoals welk apparaat of interpretatie (voor later)
   interpretatie: text("interpretatie"),
+});
+export const beheerMetadata = sqliteTable("beheer_metadata", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  tabelNaam: text("tabel_naam").notNull(),     // bijv: 'personen'
+  tabelLabel: text("tabel_label").notNull(),   // bijv: 'Personen'
+  veldId: text("veld_id").notNull(),           // bijv: 'voornamen'
+  veldLabel: text("veld_label").notNull(),     // bijv: 'Voornaam'
+  veldType: text("veld_type").notNull(),       // bijv: 'text', 'number', 'date'
+  volgnummer: integer("volgnummer").notNull(), // voor de volgorde in het formulier
+  // NIEUW: Optioneel of verplicht (standaard optioneel)
+  verplicht: integer('verplicht', { mode: 'boolean' }).default(false),
+  toelichting: text("toelichting"),            // optionele hulptekst
 });
