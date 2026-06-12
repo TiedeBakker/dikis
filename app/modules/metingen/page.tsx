@@ -51,7 +51,6 @@ export default async function MetingenPage() {
       parameterId,
       waarde,
     });
-
     revalidatePath("/modules/metingen");
   }
 
