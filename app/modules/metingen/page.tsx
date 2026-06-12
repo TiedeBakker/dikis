@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { desc, eq, sql } from "drizzle-orm";
 import MetingenForm from "./MetingenForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function MetingenPage() {
   
   // 1. Haal de stamgegevens op
