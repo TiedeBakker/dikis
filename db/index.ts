@@ -16,11 +16,11 @@ const client = createClient({
   url: process.env.TURSO_CONNECTION_URL!,
   authToken: process.env.TURSO_AUTH_TOKEN,
   
-  // TOEVOEGEN: De ultieme Next.js cache-sloper voor Turso
-  fetch: (input, init) => {
+  // Nu mét de juiste TypeScript-types om de compiler blij te maken
+  fetch: (input: RequestInfo | URL, init?: RequestInit) => {
     return fetch(input, {
       ...init,
-      cache: "no-store", // Dit dwingt Vercel om ELKE SQL-query live uit te voeren
+      cache: "no-store",
     });
   },
 });
