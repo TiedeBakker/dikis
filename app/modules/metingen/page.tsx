@@ -54,9 +54,24 @@ export default async function MetingenPage() {
     });
     revalidatePath("/modules/metingen");
   }
+  async function herlaadData() {
+  "use server";
+  revalidatePath("/modules/metingen"); // Of jouw exacte pad
+}
 
   return (
     <div className="max-w-xl mx-auto space-y-8">
+      {/* 2. VOEG DEZE KNOP TOE BOVENAAN JE PAGINA */}
+    <div className="flex justify-end px-1">
+      <form action={herlaadData}>
+        <button 
+          type="submit" 
+          className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-1.5 px-3 rounded-lg transition border border-gray-200 shadow-sm"
+        >
+          🔄 Synchroniseer Data
+        </button>
+      </form>
+    </div>
       
       {/* INVOERFORMULIER (Als apart Client Component ingeladen) */}
       <MetingenForm 
