@@ -58,7 +58,6 @@ export default async function MetingenPage() {
   "use server";
   revalidatePath("/modules/metingen"); // Of jouw exacte pad
 }
-
   return (
     <div className="max-w-xl mx-auto space-y-8">
       {/* 2. VOEG DEZE KNOP TOE BOVENAAN JE PAGINA */}
