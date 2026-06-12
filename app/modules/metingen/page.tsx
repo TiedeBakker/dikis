@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { desc, eq, sql } from "drizzle-orm";
 import MetingenForm from "./MetingenForm";
 
-// DE TWEE GOUDEN REGELS VOOR LIVE DATA:
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store"; // <-- VOEG DEZE REGEL TOE
 
