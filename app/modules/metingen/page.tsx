@@ -54,13 +54,13 @@ export default async function MetingenPage() {
     });
     revalidatePath("/modules/metingen");
   }
-  async function herlaadData() {
-  "use server";
-  revalidatePath("/modules/metingen"); // Of jouw exacte pad
-}
+//   async function herlaadData() {
+//   "use server";
+//   revalidatePath("/modules/metingen"); // Of jouw exacte pad
+// }
   return (
     <div className="max-w-xl mx-auto space-y-8">
-      {/* 2. VOEG DEZE KNOP TOE BOVENAAN JE PAGINA */}
+      {/* 2. VOEG DEZE KNOP TOE BOVENAAN JE PAGINA
     <div className="flex justify-end px-1">
       <form action={herlaadData}>
         <button 
@@ -70,7 +70,7 @@ export default async function MetingenPage() {
           🔄 Synchroniseer Data
         </button>
       </form>
-    </div>
+    </div> */}
       
       {/* INVOERFORMULIER (Als apart Client Component ingeladen) */}
       <MetingenForm 

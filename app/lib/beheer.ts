@@ -7,7 +7,7 @@ export async function getBeheerConfig(tabelNaam: string) {
     .select()
     .from(beheerMetadata)
     .where(eq(beheerMetadata.tabelNaam, tabelNaam))
-    .orderBy(asc(beheerMetadata.volgnummer));
+    .orderBy(beheerMetadata.volgnummer);
 
   if (metadata.length === 0) return null;
 
@@ -17,7 +17,9 @@ export async function getBeheerConfig(tabelNaam: string) {
       id: m.veldId,
       label: m.veldLabel,
       type: m.veldType,
-      verplicht: m.verplicht // <-- NIEUW
+      verplicht: m.verplicht,
+      toelichting: m.toelichting,
+      lookupTabel: m.lookupTabel // <-- NIEUW meegeven
     }))
   };
 }

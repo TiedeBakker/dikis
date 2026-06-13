@@ -80,15 +80,24 @@ export const logboek = sqliteTable("logboek", {
   // Optioneel: metadata zoals welk apparaat of interpretatie (voor later)
   interpretatie: text("interpretatie"),
 });
+// 1. NIEUWE BRONTABEL: eenheden
+export const eenheden = sqliteTable("eenheden", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),     // bijv. "Celsius"
+  symbool: text("symbool").notNull(), // bijv. "°C"
+});
+
+// 2. GEWELDIGE UPDATE AAN METADATA: Voeg lookupTabel toe
 export const beheerMetadata = sqliteTable("beheer_metadata", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tabelNaam: text("tabel_naam").notNull(),     // bijv: 'personen'
-  tabelLabel: text("tabel_label").notNull(),   // bijv: 'Personen'
-  veldId: text("veld_id").notNull(),           // bijv: 'voornamen'
-  veldLabel: text("veld_label").notNull(),     // bijv: 'Voornaam'
-  veldType: text("veld_type").notNull(),       // bijv: 'text', 'number', 'date'
-  volgnummer: integer("volgnummer").notNull(), // voor de volgorde in het formulier
-  // NIEUW: Optioneel of verplicht (standaard optioneel)
+  tabelNaam: text("tabel_naam").notNull(),
+  tabelLabel: text("tabel_label").notNull(),
+  veldId: text("veld_id").notNull(),
+  veldLabel: text("veld_label").notNull(),
+  veldType: text("veld_type").notNull(), // Dit wordt dadelijk 'select' voor koppelingen
+  volgnummer: integer("volgnummer").notNull(),
   verplicht: integer('verplicht', { mode: 'boolean' }).default(false),
-  toelichting: text("toelichting"),            // optionele hulptekst
+  toelichting: text("toelichting"),
+  // NIEUW: Welke tabel moeten we leegtrekken voor de dropdown?
+  lookupTabel: text("lookup_tabel"), // bijv: 'eenheden'
 });
