@@ -24,7 +24,7 @@ export async function opslaanRecord(categorieNaam: string, formData: FormData) {
 }
 
 // NIEUW: Actie voor het bijwerken van een bestaand record
-export async function bijwerkenRecord(categorieNaam: string, id: number, formData: FormData) {
+export async function bijwerkenRecord(categorieNaam: string, id: string, formData: FormData)  {
   const config = await getBeheerConfig(categorieNaam);
   if (!config) throw new Error("Configuratie ontbreekt");
 
