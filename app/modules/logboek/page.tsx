@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { logboek } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { desc } from "drizzle-orm"; // Hiermee kunnen we sorteren
-
+export const dynamic = "force-dynamic";
 export default async function LogboekPage() {
   
   // 1. Haal de bestaande logs op uit Turso (Nieuwste eerst)
