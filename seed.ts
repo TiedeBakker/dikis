@@ -55,7 +55,91 @@ async function main() {
       toelichting: 'Kies de bijbehorende meeteenheid' 
     },
     
-    { tabelNaam: 'parameters', tabelLabel: 'Parameters', veldId: 'toelichting', veldLabel: 'Toelichting', veldType: 'text', volgnummer: 3, verplicht: false }
+    { tabelNaam: 'parameters', tabelLabel: 'Parameters', veldId: 'toelichting', veldLabel: 'Toelichting', veldType: 'text', volgnummer: 3, verplicht: false },
+
+
+{
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "tabelNaam",
+    veldLabel: "Tabel Database Naam (bijv. personen)",
+    veldType: "text",
+    volgnummer: 1,
+    verplicht: true,
+    toelichting: "De exacte naam van de export const in je schema.ts"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "tabelLabel",
+    veldLabel: "Tabel Menu Label (bijv. Personen)",
+    veldType: "text",
+    volgnummer: 2,
+    verplicht: true,
+    toelichting: "De naam zoals deze in het menu en boven het formulier verschijnt"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "veldId",
+    veldLabel: "Veld Database Naam (bijv. voornamen)",
+    veldType: "text",
+    volgnummer: 3,
+    verplicht: true,
+    toelichting: "De exacte kolomnaam uit je database-schema"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "veldLabel",
+    veldLabel: "Veld Formulier Label (bijv. Voornaam)",
+    veldType: "text",
+    volgnummer: 4,
+    verplicht: true,
+    toelichting: "De tekst die boven het invoerveld komt te staan"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "veldType",
+    veldLabel: "Type Invoerveld",
+    veldType: "select", // Onze generieke code herkent dit nu als dropdown!
+    volgnummer: 5,
+    verplicht: true,
+    toelichting: "Bepaalt of het een tekstvak, getal, datum, dropdown of vinkje wordt"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "volgnummer",
+    veldLabel: "Formulier Volgorde (Sorteernummer)",
+    veldType: "number",
+    volgnummer: 6,
+    verplicht: true,
+    toelichting: "Lage nummers staan bovenaan in het formulier (bijv. 1, 2, 3)"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "verplicht",
+    veldLabel: "Dit veld is verplicht",
+    veldType: "checkbox", // Onze generieke code herkent dit nu als Ja/Nee checkbox!
+    volgnummer: 7,
+    verplicht: false,
+    toelichting: "Vink aan als de gebruiker dit veld niet leeg mag laten"
+  },
+  {
+    tabelNaam: "beheerMetadata",
+    tabelLabel: "Formulier Instellingen",
+    veldId: "toelichting",
+    veldLabel: "Hulptekst / Toelichting",
+    veldType: "text",
+    volgnummer: 8,
+    verplicht: false,
+    toelichting: "Kleine grijze instructietekst onder het invoerveld (optioneel)"
+  }
+
+
   ];
 
   await db.insert(beheerMetadata).values(metadataData);
