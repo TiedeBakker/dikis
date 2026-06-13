@@ -39,7 +39,7 @@ export default async function BeheerLayout({
       </div>
 
       {/* 2. DESKTOP LAYOUT (Verborgen op mobiel, flexbox op PC vanaf 1024px) */}
-      <div /*className="hidden lg:flex min-h-screen"*/>
+      <div className="hidden lg:flex min-h-screen">
         
         {/* VASTE SIDEBAR */}
         <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800">
