@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import * as schema from "@/db/schema";
 import { opslaanRecord, bijwerkenRecord } from "./actions";
 import Link from "next/link";
-import { asc } from "drizzle-orm"; // NIEUW: Nodig voor de sortering
+import { asc, or, like } from "drizzle-orm"; // NIEUW: 'or' en 'like' toegevoegd voor het zoeken
 
 interface BeheerVeld {
   id: string;
@@ -20,13 +20,14 @@ export default async function BeheerCategoriePage({
   searchParams
 }: {
   params: Promise<{ categorie: string }>;
-  searchParams: Promise<{ edit?: string }>;
+  searchParams: Promise<{ edit?: string; q?: string }>; // NIEUW: 'q' (query) toegevoegd aan searchParams
 }) {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
 
   const categorieNaam = resolvedParams.categorie;
   const editId = resolvedSearchParams.edit || null;
+  const zoekTerm = resolvedSearchParams.q || ""; // De actuele zoekterm uit de URL
 
   const config = await getBeheerConfig(categorieNaam);
   if (!config) notFound();
@@ -34,26 +35,34 @@ export default async function BeheerCategoriePage({
   const targetTable = (schema as any)[categorieNaam];
   if (!targetTable) notFound();
 
- /// DYNAMISCHE SORTERING BOUWEN (Gebaseerd op schema.ts)
+  // 1. DYNAMISCHE SORTERING BOUWEN (Gebaseerd op schema.ts)
   const orderClauses = [];
-  
-  // 1. Sorteer op tabelNaam als de actieve tabel die kolom heeft (zoals beheerMetadata)
-  if (targetTable.tabelNaam) {
-    orderClauses.push(asc(targetTable.tabelNaam));
+  if (targetTable.tabelNaam) orderClauses.push(asc(targetTable.tabelNaam));
+  if (targetTable.volgnummer) orderClauses.push(asc(targetTable.volgnummer));
+  if (orderClauses.length === 0 && targetTable.id) orderClauses.push(asc(targetTable.id));
+
+  // 2. DYNAMISCH ZOEKEN IN ALLE VELDEN
+  const whereClauses = [];
+  if (zoekTerm.trim() !== "") {
+    // We lopen door alle velden die in de beheer-configuratie bekend zijn
+    for (const v of config.velden) {
+      // We zoeken de daadwerkelijke Drizzle-kolom op (hou rekening met snake_case/camelCase fallbacks)
+      const kolomNaam = targetTable[v.id] || targetTable[v.id.replace(/[A-Z]/g, l => `_${l.toLowerCase()}`)];
+      
+      if (kolomNaam) {
+        // We casten alles naar %zoekterm% (case-insensitive in SQLite)
+        whereClauses.push(like(kolomNaam, `%${zoekTerm}%`));
+      }
+    }
   }
 
-  // 2. Sorteer op volgnummer als de actieve tabel die kolom heeft
-  if (targetTable.volgnummer) {
-    orderClauses.push(asc(targetTable.volgnummer));
-  }
-  
-  // 3. Fallback: als geen van beide bestaat (bijv. bij 'eenheden'), sorteer stabiel op id
-  if (orderClauses.length === 0 && targetTable.id) {
-    orderClauses.push(asc(targetTable.id));
-  }
-
-  // Haal de records op met de exacte sortering
-  const records = await db.select().from(targetTable).orderBy(...orderClauses);
+  // Haal de records op met de filters, sortering en een harde LIMIT van 50
+  const records = await db
+    .select()
+    .from(targetTable)
+    .where(whereClauses.length > 0 ? or(...whereClauses) : undefined)
+    .orderBy(...orderClauses)
+    .limit(50); // NIEUW: Beperk de database-output tot maximaal 50 records
   
   const huidigRecord = editId ? records.find((r: any) => String(r.id) === String(editId)) : null;
 
@@ -174,14 +183,43 @@ export default async function BeheerCategoriePage({
 
       <hr className="border-gray-200" />
 
-      {/* SECTIE 2: De Tabel */}
+      {/* SECTIE 2: De Tabel met Zoekbalk */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-gray-100 bg-gray-50">
-          <h2 className="font-semibold text-lg text-gray-800">Bestaande {config.tabelLabel.toLowerCase()}</h2>
+        <div className="p-5 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="font-semibold text-lg text-gray-800">Bestaande {config.tabelLabel.toLowerCase()}</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Toont maximaal 50 records</p>
+          </div>
+          
+          {/* NIEUW: De Zoekbalk (Draait puur op HTML/URL-structuur, geen state nodig!) */}
+          <form method="GET" className="flex gap-2 max-w-sm w-full">
+            {/* Zorg dat de edit-modus niet per ongeluk gereset wordt bij zoeken */}
+            {editId && <input type="hidden" name="edit" value={editId} />}
+            <input 
+              type="text" 
+              name="q"
+              defaultValue={zoekTerm}
+              placeholder="Zoeken in alle velden..."
+              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            />
+            {zoekTerm && (
+              <Link 
+                href={`/beheer/${categorieNaam}${editId ? `?edit=${editId}` : ''}`} 
+                className="px-2 py-1.5 text-xs text-gray-500 hover:text-gray-700 flex items-center bg-gray-100 rounded-lg"
+              >
+                Wis
+              </Link>
+            )}
+            <button type="submit" className="px-4 py-1.5 text-sm bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
+              Zoek
+            </button>
+          </form>
         </div>
 
         {records.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 italic">Er zijn nog geen gegevens ingevoerd.</div>
+          <div className="p-8 text-center text-gray-500 italic">
+            {zoekTerm ? "Geen resultaten gevonden voor deze zoekopdracht." : "Er zijn nog geen gegevens ingevoerd."}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -233,7 +271,8 @@ export default async function BeheerCategoriePage({
                       }
                     })}
                     <td className="p-4 text-sm text-right whitespace-nowrap">
-                      <Link href={`/beheer/${categorieNaam}?edit=${row.id}`} className="text-blue-600 hover:text-blue-900 font-medium transition-colors">
+                      {/* Behoud de zoekterm als je op bewerken klikt */}
+                      <Link href={`/beheer/${categorieNaam}?edit=${row.id}${zoekTerm ? `&q=${zoekTerm}` : ''}`} className="text-blue-600 hover:text-blue-900 font-medium transition-colors">
                         Bewerken
                       </Link>
                     </td>

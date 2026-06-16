@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { text, sqliteTable, real, integer } from "drizzle-orm/sqlite-core";
 
 // ==========================================
-// 1. MOEDERTABELLEN (Beheer primair via PC)
+// 1. MOEDERTABELLEN (Stamgegevens)
 // ==========================================
 
 export const personen = sqliteTable("personen", {
@@ -10,7 +10,6 @@ export const personen = sqliteTable("personen", {
   voornamen: text("voornamen").notNull(),
   tussenvoegsel: text("tussenvoegsel"),
   achternaam: text("achternaam").notNull(),
-  // Datumvelden opslaan als ISO tekst strings (YYYY-MM-DD) in SQLite
   geboortedatum: text("geboortedatum"), 
   datumOverlijden: text("datum_overlijden"),
   telefoonnummer: text('telefoonnummer'),
@@ -19,85 +18,120 @@ export const personen = sqliteTable("personen", {
 export const gebouwen = sqliteTable("gebouwen", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   straat: text("straat").notNull(),
-  nummer: text("nummer").notNull(), // Tekst, i.v.m. toevoegingen zoals '12-A'
+  nummer: text("nummer").notNull(),
   plaats: text("plaats").notNull(),
   korteAanduiding: text("korte_aanduiding"),
   postcode: text("postcode"),
-  // Real is perfect voor coördinaten/decimalen
   xCoordinaat: real("x_coordinaat"), 
   yCoordinaat: real("y_coordinaat"),
 });
 
-export const parameters = sqliteTable("parameters", {
+export const eenheden = sqliteTable("eenheden", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   naam: text("naam").notNull(),
-  eenheidId: text("eenheid_id"), // Optionele link naar toekomstige eenheden-tabel
-  toelichting: text("toelichting"),
-});
-
-export const aspecttypen = sqliteTable("aspecttypen", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  aanduiding: text("aanduiding").notNull(),
-  toelichting: text("toelichting"),
+  symbool: text("symbool"),
 });
 
 // ==========================================
-// 2. INVOER TABELLEN (App & PC)
+// 2. DYNAMISCHE KEUZELIJSTEN (Nieuw)
+// ==========================================
+
+export const keuzelijsten = sqliteTable("keuzelijsten", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),
+  toelichting: text("toelichting"),
+});
+
+export const keuzelijstOpties = sqliteTable("keuzelijst_opties", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  keuzelijstId: text("keuzelijst_id").notNull().references(() => keuzelijsten.id, { onDelete: "cascade" }),
+  waarde: text("waarde").notNull(),
+  volgnr: integer("volgnr").notNull().default(1),
+});
+
+// ==========================================
+// 3. PARAMETERS (Voorheen: Parameters + Aspecttypen)
+// ==========================================
+
+export const parameters = sqliteTable("parameters", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),
+  toelichting: text("toelichting"),
+  // NIEUW: Bepaalt hoe het formulier rendert
+  type: text("type", { enum: ["numeriek", "tekst", "tekstveld", "boolean", "keuzelijst"] }).notNull().default("numeriek"),
+  eenheidId: text("eenheid_id").references(() => eenheden.id),
+  keuzelijstId: text("keuzelijst_id").references(() => keuzelijsten.id),
+});
+
+// ==========================================
+// 4. FORMULIER ENGINE & GROEPEN (Nieuw)
+// ==========================================
+
+export const parameterSets = sqliteTable("parameter_sets", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),
+  toelichting: text("toelichting"),
+});
+
+export const setRegels = sqliteTable("set_regels", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  setId: text("set_id").notNull().references(() => parameterSets.id, { onDelete: "cascade" }),
+  parameterId: text("parameter_id").notNull().references(() => parameters.id, { onDelete: "cascade" }),
+  label: text("label"), // Override voor weergavenaam op formulier
+  verplicht: integer("verplicht", { mode: "boolean" }).notNull().default(false),
+  volgnr: integer("volgnr").notNull().default(1),
+});
+
+export const groepen = sqliteTable("groepen", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  naam: text("naam").notNull(),
+  toelichting: text("toelichting"),
+  standaardSetId: text("standaard_set_id").references(() => parameterSets.id),
+});
+
+export const groepObjecten = sqliteTable("groep_objecten", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  groepId: text("groep_id").notNull().references(() => groepen.id, { onDelete: "cascade" }),
+  objectId: text("object_id").notNull(),
+  objectType: text("object_type").notNull(),
+});
+
+// ==========================================
+// 5. INVOER TABELLEN (De Universele Waarneming)
 // ==========================================
 
 export const metingen = sqliteTable("metingen", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  objectId: text("object_id").notNull(), // Alleen nog de pure UUID!
-  parameterId: text("parameter_id").notNull(),
-  waarde: real("waarde").notNull(),
-  datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
-});
-
-export const aspecten = sqliteTable("aspecten", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  objectId: text("object_id").notNull(), // Alleen nog de pure UUID!
-  aspecttypeId: text("aspecttype_id").notNull(),
-  waarde: text("waarde").notNull(),
+  sessieId: text("sessie_id").notNull(), // NIEUW: Bindt formulier-input aan elkaar
+  objectId: text("object_id").notNull(), 
+  objectType: text("object_type").notNull(), // NIEUW: "personen" of "gebouwen" etc.
+  parameterId: text("parameter_id").notNull().references(() => parameters.id),
+  waarde: text("waarde").notNull(), // GEWIJZIGD: Real -> Text (slikt nu alles)
   datumTijd: text("datum_tijd").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 });
 
 export const logboek = sqliteTable("logboek", {
-  // De primary key genereren we direct als een unieke tekst (UUID)
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  
-  // De invoerdatum, standaard ingesteld op het huidige tijdstip op de server
-  createdAt: text("created_at")
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .notNull(),
-  
-  // Velden voor de daadwerkelijke data
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
   categorie: text("categorie").notNull(),
   titel: text("titel").notNull(),
   inhoud: text("inhoud").notNull(),
-  
-  // Optioneel: metadata zoals welk apparaat of interpretatie (voor later)
   interpretatie: text("interpretatie"),
 });
-// 1. NIEUWE BRONTABEL: eenheden
-export const eenheden = sqliteTable("eenheden", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  naam: text("naam").notNull(),     // bijv. "Celsius"
-  symbool: text("symbool").notNull(), // bijv. "°C"
-});
 
-// 2. GEWELDIGE UPDATE AAN METADATA: Voeg lookupTabel toe
+// ==========================================
+// 6. BEHEER & UI METADATA
+// ==========================================
+
 export const beheerMetadata = sqliteTable("beheer_metadata", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   tabelNaam: text("tabel_naam").notNull(),
   tabelLabel: text("tabel_label").notNull(),
   veldId: text("veld_id").notNull(),
   veldLabel: text("veld_label").notNull(),
-  veldType: text("veld_type").notNull(), // Dit wordt dadelijk 'select' voor koppelingen
+  veldType: text("veld_type").notNull(),
   volgnummer: integer("volgnummer").notNull(),
   verplicht: integer('verplicht', { mode: 'boolean' }).default(false),
   toelichting: text("toelichting"),
-  // NIEUW: Welke tabel moeten we leegtrekken voor de dropdown?
-  lookupTabel: text("lookup_tabel"), // bijv: 'eenheden'
+  lookupTabel: text("lookup_tabel"), 
 });

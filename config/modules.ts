@@ -9,5 +9,6 @@ export const DIKIS_MODULES: ModuleConfig[] = [
   { id: 'home', title: 'Dashboard', path: '/' },
   { id: 'logboek', title: 'Logboek Invoer', path: '/modules/logboek' },
   { id: 'metingen', title: 'Meetreeksen', path: '/modules/metingen' },
+  { id: "inspectie", title: "📝 Veldwerk Inspecties", path: "/inspectie" },
   { id: 'analyse', title: 'Data Analyse', path: '/modules/analyse' },
 ];
