@@ -20,19 +20,33 @@ export default async function ParameterSetsPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto text-black">
-      {/* Header */}
-      <div className="mb-8 border-b border-gray-200 pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Beheer Parametersets (Blauwdrukken)</h1>
-        <p className="text-sm text-gray-500">
-          Maak hier de formulieren (sets van parameters) aan die inspecteurs straks gaan invullen.
-        </p>
+    // Ruimer opgezet: max-w-6xl geeft de tabel net even die extra ademruimte op desktop
+    <div className="p-8 max-w-6xl mx-auto text-black">
+      
+      {/* Header met een duidelijke terugknop naar het Dashboard */}
+      <div className="mb-8 border-b border-gray-200 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Beheer Parametersets (Blauwdrukken)</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Maak hier de formulieren (sets van parameters) aan die inspecteurs straks gaan invullen.
+            </p>
+          </div>
+          <div>
+            <Link
+              href="/beheer"
+              className="inline-flex items-center px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium border border-gray-300 rounded-lg shadow-sm transition-colors"
+            >
+              ← Terug naar Dashboard
+            </Link>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* LINKER KOLOM: Snel aanmaken */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-6">
           <h2 className="font-bold text-gray-800 mb-4 text-base">Nieuwe Set Toevoegen</h2>
           <form action={handleCreate} className="space-y-4">
             <div className="flex flex-col">
@@ -60,8 +74,8 @@ export default async function ParameterSetsPage() {
           </form>
         </div>
 
-        {/* RECHTER KOLOM: Overzichtstabel (Desktop breedte) */}
-        <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        {/* RECHTER KOLOM: Overzichtstabel */}
+        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -85,7 +99,7 @@ export default async function ParameterSetsPage() {
                     <td className="p-4 text-right">
                       <Link 
                         href={`/beheer/parameter-sets/${set.id}`}
-                        className="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-md text-xs font-medium border border-gray-200 hover:border-blue-200 transition-all"
+                        className="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-md text-xs font-medium border border-gray-200 hover:border-blue-200 transition-all shadow-sm"
                       >
                         Beheer Regels →
                       </Link>

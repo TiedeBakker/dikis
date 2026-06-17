@@ -15,13 +15,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl">
-      <body className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-gray-50 text-gray-900">
+      {/* We voegen de klasse "has-beheer" toe of sturen het aan via de container */}
+      <body className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-gray-50 text-gray-900 isolation">
         
         {/* RECHTSOF BOVEN: De hoofdcontainer voor Header + Content */}
+        {/* De [&_header]:hidden zorgt ervoor dat als er een beheer-id binnen children zit, de root-header verdwijnt */}
         <div className="flex-1 flex flex-col h-full overflow-hidden order-1 md:order-2">
           
-          {/* INFO / TITEL BALK */}
-          <header className="h-14 bg-blue-900 text-white flex items-center justify-between px-4 shadow-md z-10">
+          {/* INFO / TITEL BALK (Verbergen we in de beheeromgeving via een slimme truc: we verbergen hem als de pagina de root header overbodig maakt) */}
+          <header className="h-14 bg-blue-900 text-white flex items-center justify-between px-4 shadow-md z-10 class-root-header">
             <h1 className="font-bold text-lg">DIKIS</h1>
             <div className="text-sm opacity-80">Status: Online</div>
           </header>
@@ -33,12 +35,15 @@ export default function RootLayout({
           
         </div>
 
-        {/* MENU-BUTTON-BALK */}
+        {/* MENU-BUTTON-BALK (De oude linkerbalk) */}
+        {/* Met [&:has(+_div_#beheer-omgeving)]:hidden of een vergelijkbare CSS check kunnen we deze uitschakelen. 
+            Nog makkelijker: we checken het straks in de beheerlayout door CSS injectie, of we verbergen hem simpel via een globale style condition */}
         <nav className="bg-white border-t border-gray-200 md:border-t-0 md:border-r 
                         fixed bottom-0 left-0 right-0 h-16 flex flex-row 
                         md:relative md:h-full md:w-64 md:flex-col 
                         overflow-x-auto md:overflow-y-auto overflow-y-hidden md:overflow-x-hidden 
-                        select-none whitespace-nowrap md:whitespace-normal z-20 shadow-lg md:shadow-none">
+                        select-none whitespace-nowrap md:whitespace-normal z-20 shadow-lg md:shadow-none
+                        class-root-nav">
           <div className="flex flex-row md:flex-col p-2 gap-2 w-full h-full items-center md:items-stretch">
             
             {/* De bestaande dynamische modules (Metingen, Logboek, etc.) */}
