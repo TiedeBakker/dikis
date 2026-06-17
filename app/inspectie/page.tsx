@@ -1,4 +1,4 @@
-import { getInspectieGroepen } from "./actions";
+import {  getInspectieGroepen } from "./actions";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -7,10 +7,10 @@ export default async function InspectieStartPage() {
   const groepen = await getInspectieGroepen();
 
   return (
-    <div className="text-black max-w-4xl mx-auto space-y-6">
+    <div className="text-amber-200xt-black max-w-4xl mx-auto space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">👋 Inspecties Uitvoeren</h2>
-        <p className="text-gray-600 text-sm mt-1">Selecteer de groep of locatie-cluster waar je momenteel aan het werk bent.</p>
+        <p className="text-gray-600 text-slate-50t-sm mt-1">Selecteer de groep of locatie-cluster waar je momenteel aan het werk bent.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

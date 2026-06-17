@@ -103,14 +103,31 @@ export async function updateSetRegel(
   data: { label?: string; verplicht?: boolean; volgnr?: number }
 ) {
   try {
+    // 1. Haal eerst de setId op van deze regel om de juiste pagina te kunnen refreshen
+    const huidigeRegel = await db
+      .select({ setId: setRegels.setId })
+      .from(setRegels)
+      .where(eq(setRegels.id, regelId))
+      .then((res) => res[0]);
+
+    // 2. Bouw de update-set dynamisch op
+    const updateData: Record<string, any> = {};
+    if (data.label !== undefined) updateData.label = data.label === "" ? null : data.label;
+    if (data.verplicht !== undefined) updateData.verplicht = data.verplicht;
+    if (data.volgnr !== undefined) updateData.volgnr = data.volgnr;
+    console.log("Updating regel 1234 update:", regelId, data, data.volgnr,"TEST");
+    console.log("Updating regel 1234 updateData:", updateData.volgnr,"TEST111");
+
+    // 3. Voer de update uit
     await db
       .update(setRegels)
-      .set({
-        label: data.label === "" ? null : data.label,
-        verplicht: data.verplicht,
-        volgnr: data.volgnr,
-      })
+      .set(updateData)
       .where(eq(setRegels.id, regelId));
+    
+    // 4. Dwing Next.js om de beheerpagina opnieuw op te bouwen (en dus opnieuw te sorteren!)
+    if (huidigeRegel?.setId) {
+      revalidatePath(`/beheer/parameter-sets/${huidigeRegel.setId}`);
+    }
     
     return { success: true };
   } catch (error) {
@@ -118,7 +135,6 @@ export async function updateSetRegel(
     return { success: false };
   }
 }
-
 // 7. Verwijder een parameter uit de set
 export async function verwijderRegelUitSet(regelId: string, setId: string) {
   try {

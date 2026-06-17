@@ -6,9 +6,9 @@ export default function HomePage() {
       {/* Welkom Header */}
       <div>
         <h2 className="text-2xl font-bold mb-2 text-gray-900">DIKIS Dashboard</h2>
-        <p className="text-gray-600">
+        {/* <p className="text-gray-600">
           Welkom in het centrale kennissysteem. Kies een operationele module in het menu of gebruik het beheerpaneel hieronder.
-        </p>
+        </p> */}
       </div>
 
       <hr className="border-gray-200" />

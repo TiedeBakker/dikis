@@ -60,7 +60,7 @@ export default async function SetDetailBeheerPage({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <th className="p-3 text-center w-20">Volgorde</th>
+                <th className="p-3 text-center w-20" >Volgorde</th>
                 <th className="p-3">Parameter (Basis)</th>
                 <th className="p-3">Weergave Label op formulier (Override)</th>
                 <th className="p-3 text-center w-24">Verplicht</th>
