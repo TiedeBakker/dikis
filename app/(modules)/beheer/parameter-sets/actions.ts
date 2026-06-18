@@ -121,6 +121,7 @@ export async function updateSetRegel(
     // 3. Voer de update uit
     await db
       .update(setRegels)
+      
       .set(updateData)
       .where(eq(setRegels.id, regelId));
     
