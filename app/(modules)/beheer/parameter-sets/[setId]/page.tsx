@@ -8,6 +8,7 @@ import { eq, asc } from "drizzle-orm";
 import { voegParameterToeAanSet, verwijderRegelUitSet, updateSetRegel } from "../actions";
 import VolgnrInput from "./_components/VolgnrInput";
 import LabelInput from "./_components/LabelInput";
+import VerplichtCheck from "./_components/VerplichtCheck";
 
 export const dynamic = "force-dynamic";
 
@@ -120,10 +121,10 @@ export default async function ParameterSetDetailPage({ params }: PageProps) {
                   </td>
                   {/* Verplicht checkbox */}
                   <td className="p-3 text-center">
-                    <input
-                      type="checkbox"
-                      defaultChecked={regel.verplicht}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    <VerplichtCheck
+                      regelId={regel.id}
+                      initialVerplicht={regel.verplicht}
+                      updateAction={updateSetRegel}
                     />
                   </td>
 
