@@ -1,67 +1,164 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { DIKIS_MODULES } from "@/config/modules";
-import "./globals.css"; // Zorg dat Tailwind hier geladen wordt
+// src/app/layout.tsx
+"use client";
 
-export const metadata: Metadata = {
-  title: "DIKIS",
-  description: "Digitaal Kennis- en Informatie systeem",
-};
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { DIKIS_MODULES } from "@/config/modules";
+import "./globals.css";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname() || "";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Check of de huidige pagina onder /beheer valt voor de 2e menulaag
+  const isBeheerOmgeving = pathname.startsWith("/beheer");
+
   return (
     <html lang="nl">
-      {/* We voegen de klasse "has-beheer" toe of sturen het aan via de container */}
-      <body className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-gray-50 text-gray-900 isolation">
+      <body className="min-h-screen bg-gray-50 text-gray-900 font-sans flex flex-col antialiased">
         
-        {/* RECHTSOF BOVEN: De hoofdcontainer voor Header + Content */}
-        {/* De [&_header]:hidden zorgt ervoor dat als er een beheer-id binnen children zit, de root-header verdwijnt */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden order-1 md:order-2">
+        {/* =========================================================================
+            PC OMGEVING LAYOUT (Zichtbaar vanaf lg: 1024px)
+            ========================================================================= */}
+        <div className="hidden lg:flex flex-col w-full shrink-0">
           
-          {/* INFO / TITEL BALK (Verbergen we in de beheeromgeving via een slimme truc: we verbergen hem als de pagina de root header overbodig maakt) */}
-          <header className="h-14 bg-blue-900 text-white flex items-center justify-between px-4 shadow-md z-10 class-root-header">
-            <h1 className="font-bold text-lg">DIKIS</h1>
-            <div className="text-sm opacity-80">Status: Online</div>
+          {/* BALK 1: HOOFDNAVIGATIE APPLICATIE */}
+          <header className="bg-slate-900 text-slate-300 px-8 py-3 flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚙️</span>
+                <span className="font-extrabold tracking-wider text-sm text-blue-400">DIKIS CORE</span>
+              </div>
+              
+              <nav className="flex items-center gap-1 text-sm font-medium">
+                {DIKIS_MODULES.map((module) => {
+                  const isActive = pathname.startsWith(module.path);
+                  return (
+                    <Link
+                      key={module.id}
+                      href={module.path}
+                      className={`px-3 py-1.5 rounded transition-colors ${
+                        isActive 
+                          ? "bg-blue-600 text-white font-semibold shadow-sm" 
+                          : "hover:text-white hover:bg-slate-800"
+                      }`}
+                    >
+                      {module.title}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+            <div className="text-xs text-slate-400 font-mono flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+              PC-Modus: Live
+            </div>
           </header>
 
-          {/* CENTRALE CONTENT OMGEVING */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
-            {children}
-          </main>
-          
+          {/* BALK 2: SUBNAVIGATIE (Alleen zichtbaar als we binnen Beheer navigeren) */}
+          {isBeheerOmgeving && (
+            <div className="bg-white border-b border-gray-200 px-8 py-2.5 flex items-center justify-between shadow-sm">
+              <nav className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-gray-600">
+                <Link href="/beheer" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                  🏠 Dashboard
+                </Link>
+                <Link href="/beheer/groepen" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                  📂 Groepen & Objecten
+                </Link>
+                <Link href="/beheer/parameter-sets" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                  📋 Parametersets (Blauwdrukken)
+                </Link>
+                <Link href="/beheer/stamgegevens" className="px-3 py-1.5 rounded-lg text-purple-600 hover:bg-purple-50 border border-purple-100 font-bold">
+                  ⚙️ Stamgegevens
+                </Link>
+              </nav>
+            </div>
+          )}
         </div>
 
-        {/* MENU-BUTTON-BALK (De oude linkerbalk) */}
-        {/* Met [&:has(+_div_#beheer-omgeving)]:hidden of een vergelijkbare CSS check kunnen we deze uitschakelen. 
-            Nog makkelijker: we checken het straks in de beheerlayout door CSS injectie, of we verbergen hem simpel via een globale style condition */}
-        <nav className="bg-white border-t border-gray-200 md:border-t-0 md:border-r 
-                        fixed bottom-0 left-0 right-0 h-16 flex flex-row 
-                        md:relative md:h-full md:w-64 md:flex-col 
-                        overflow-x-auto md:overflow-y-auto overflow-y-hidden md:overflow-x-hidden 
-                        select-none whitespace-nowrap md:whitespace-normal z-20 shadow-lg md:shadow-none
-                        class-root-nav">
-          <div className="flex flex-row md:flex-col p-2 gap-2 w-full h-full items-center md:items-stretch">
+        {/* =========================================================================
+            SMARTPHONE & TABLET LAYOUT (Zichtbaar op schermen tot 1024px)
+            ========================================================================= */}
+        <div className="lg:hidden flex flex-col w-full bg-slate-900 text-white shrink-0 shadow-md">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⚙️</span>
+              <span className="font-bold text-xs uppercase tracking-wider text-blue-400">DIKIS Mobile</span>
+            </div>
             
-            {/* De bestaande dynamische modules (Metingen, Logboek, etc.) */}
-            {DIKIS_MODULES.map((module) => (
-              <Link
-                key={module.id}
-                href={module.path}
-                className="inline-flex items-center justify-center md:justify-start 
-                           px-4 py-2 md:py-3 rounded-lg bg-gray-100 hover:bg-blue-100 hover:text-blue-900 
-                           font-medium transition-colors text-sm md:text-base 
-                           min-w-[120px] md:min-w-0 h-10 md:h-auto"
-              >
-                {module.title}
-              </Link>
-            ))}
-
+            {/* Hamburger Knop */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-slate-300 hover:text-white outline-none focus:bg-slate-800 rounded-lg transition-colors"
+              aria-label="Menu openen"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
           </div>
-        </nav>
+
+          {/* Uitklapbaar Mobiel Menu via Hamburger */}
+          {mobileMenuOpen && (
+            <nav className="border-t border-slate-800 p-3 space-y-1 bg-slate-900 transition-all">
+              {DIKIS_MODULES.map((module) => {
+                const isActive = pathname.startsWith(module.path);
+                return (
+                  <Link
+                    key={module.id}
+                    href={module.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive 
+                        ? "bg-blue-600 text-white" 
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    }`}
+                  >
+                    <span>{module.icon}</span>
+                    {module.title}
+                    {module.pcOnly && (
+                      <span className="ml-auto text-[10px] bg-slate-800 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-mono">PC</span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+
+          {/* HORIZONTAAL SCROLLBARE BALK (Alleen voor sub-menu op mobiel/tablet als we in beheer zitten) */}
+          {isBeheerOmgeving && (
+            <div className="bg-white border-b border-gray-200 text-gray-600 overflow-x-auto whitespace-nowrap scrollbar-none flex items-center px-2 py-1.5 shadow-inner">
+              <Link href="/beheer" className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md mr-1 hover:bg-gray-100">
+                🏠 Dashboard
+              </Link>
+              <Link href="/beheer/groepen" className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md mr-1 hover:bg-gray-100">
+                📂 Groepen
+              </Link>
+              <Link href="/beheer/parameter-sets" className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md mr-1 hover:bg-gray-100">
+                📋 Parametersets
+              </Link>
+              <Link href="/beheer/stamgegevens" className="inline-block px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md text-purple-600 font-extrabold bg-purple-50">
+                ⚙️ Stamgegevens
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* =========================================================================
+            CENTRALE CONTENT CONTAINER (DE WERKVLOER)
+            ========================================================================= */}
+        <main className="flex-1 w-full max-w-[1700px] mx-auto p-4 md:p-8 transition-all">
+          {children}
+        </main>
 
       </body>
     </html>

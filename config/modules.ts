@@ -1,14 +1,17 @@
-export interface ModuleConfig {
+// src/config/modules.ts
+
+export interface DikisModule {
   id: string;
   title: string;
   path: string;
-  icon?: string; // Hier kun je later eventueel Lucide-react iconen aan koppelen
+  icon: string;
+  pcOnly?: boolean; // Hiermee kunnen we straks specifieke beheer-schermen blokkeren op mobiel
 }
 
-export const DIKIS_MODULES: ModuleConfig[] = [
-  { id: 'home', title: 'Dashboard', path: '/' },
-  { id: 'logboek', title: 'Logboek Invoer', path: '/modules/logboek' },
-  { id: 'metingen', title: 'Meetreeksen', path: '/modules/metingen' },
-  { id: "inspectie", title: "📝 Veldwerk Inspecties", path: "/inspectie" },
-  { id: 'analyse', title: 'Data Analyse', path: '/modules/analyse' },
+export const DIKIS_MODULES: DikisModule[] = [
+  { id: "dashboard", title: "Dashboard", path: "/beheer", icon: "🏠" },
+  { id: "logboek", title: "Logboek Invoer", path: "/logboek", icon: "📋" },
+  { id: "meetreeksen", title: "Meetreeksen", path: "/meetreeksen", icon: "📊" },
+  { id: "inspecties", title: "Veldwerk Inspecties", path: "/inspecties", icon: "🔍" },
+  { id: "beheer", title: "Applicatie Beheer", path: "/beheer/parameter-sets", icon: "⚙️", pcOnly: true }
 ];
