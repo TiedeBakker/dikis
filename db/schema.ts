@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { text, sqliteTable, real, integer } from "drizzle-orm/sqlite-core";
+import { sqliteView } from "drizzle-orm/sqlite-core";
 
 // ==========================================
 // 1. MOEDERTABELLEN (Stamgegevens)
@@ -135,3 +136,12 @@ export const beheerMetadata = sqliteTable("beheer_metadata", {
   toelichting: text("toelichting"),
   lookupTabel: text("lookup_tabel"), 
 });
+
+
+// Registreer de SQL view die je in Turso hebt aangemaakt
+export const vBeschikbareObjecten = sqliteView("v_beschikbare_objecten", {
+  objectId: text("object_id").notNull(),
+  objectType: text("object_type").notNull(),
+  weergaveNaam: text("weergave_naam").notNull(),
+  extraInfo: text("extra_info"),
+}).existing(); // .existing() vertelt Drizzle dat de view al in de DB leeft en niet via een migratie aangemaakt hoeft te worden

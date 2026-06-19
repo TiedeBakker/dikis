@@ -5,6 +5,13 @@ import { db } from "@/db";
 import { parameterSets } from "@/db/schema";
 import { asc } from "drizzle-orm";
 
+//import { db } from "@/db";
+import { sql } from "drizzle-orm";
+
+// Plak dit ergens waar de code 1 keer wordt uitgevoerd bij het laden van de pagina:
+await db.run(sql`DROP VIEW IF EXISTS v_beschikbare_objecten;`);
+console.log("VIEW IS SUCCESVOL VERWIJDERD!");
+
 export const dynamic = "force-dynamic";
 
 export default async function ParameterSetsOverzichtPage() {

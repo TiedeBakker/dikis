@@ -80,7 +80,8 @@ export default async function ParameterSetDetailPage({ params }: PageProps) {
             </span>
           </div>
 
-          <table className="w-full text-left border-collapse text-xs">
+          {/* 1. DE VERTROUWDE TABEL (Alleen zichtbaar op Desktop/Tablet: md en groter) */}
+          <table className="w-full text-left border-collapse text-xs hidden md:table">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider">
                 <th className="p-3.5 w-20 text-center">Volgnr</th>
@@ -94,41 +95,21 @@ export default async function ParameterSetDetailPage({ params }: PageProps) {
             <tbody className="divide-y divide-gray-200">
               {regelsMetParameters.map((regel) => (
                 <tr key={regel.id} className="hover:bg-gray-50/70 transition-colors">
-                  {/* Volgnummer */}
                   <td className="p-3 text-center">
-                    <VolgnrInput
-                      regelId={regel.id}
-                      initialVolgnr={regel.volgnr}
-                      updateAction={updateSetRegel}
-                    />
+                    <VolgnrInput regelId={regel.id} initialVolgnr={regel.volgnr} updateAction={updateSetRegel} />
                   </td>
-                  {/* Parameter info */}
                   <td className="p-3 font-semibold text-gray-900">{regel.parameterNaam}</td>
                   <td className="p-3">
                     <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-mono text-[11px]">
                       {regel.parameterType}
                     </span>
                   </td>
-
-                  {/* Label Override Veld */}
                   <td className="p-3">
-                    <LabelInput
-                      regelId={regel.id}
-                      initialLabel={regel.label || ""}
-                      placeholder={regel.parameterNaam}
-                      updateAction={updateSetRegel}
-                    />
+                    <LabelInput regelId={regel.id} initialLabel={regel.label || ""} placeholder={regel.parameterNaam} updateAction={updateSetRegel} />
                   </td>
-                  {/* Verplicht checkbox */}
                   <td className="p-3 text-center">
-                    <VerplichtCheck
-                      regelId={regel.id}
-                      initialVerplicht={regel.verplicht}
-                      updateAction={updateSetRegel}
-                    />
+                    <VerplichtCheck regelId={regel.id} initialVerplicht={regel.verplicht} updateAction={updateSetRegel} />
                   </td>
-
-                  {/* Actieknop */}
                   <td className="p-3 text-center">
                     <form action={async () => {
                       "use server";
@@ -141,16 +122,67 @@ export default async function ParameterSetDetailPage({ params }: PageProps) {
                   </td>
                 </tr>
               ))}
-
-              {regelsMetParameters.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-400 italic">
-                    Dit formulier is nog leeg. Voeg hiernaast een parameter toe om te starten.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
+
+          {/* 2. DE MOBIELE KAARTEN-LAYOUT (Alleen zichtbaar op Smartphone: kleiner dan md) */}
+          <div className="block md:hidden divide-y divide-gray-200 bg-white">
+            {regelsMetParameters.map((regel) => (
+              <div key={regel.id} className="p-4 space-y-3">
+                {/* Kop van de kaart: Naam + Type badge + Prullenbak */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900">{regel.parameterNaam}</h4>
+                    <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-mono text-[10px]">
+                      {regel.parameterType}
+                    </span>
+                  </div>
+
+                  {/* Mobiele prullenbak */}
+                  <form action={async () => {
+                    "use server";
+                    await verwijderRegelUitSet(regel.id, setId);
+                  }}>
+                    <button type="submit" className="text-red-500 bg-red-50 p-2 rounded-lg text-xs transition-colors">
+                      🗑️ Wis veld
+                    </button>
+                  </form>
+                </div>
+
+                {/* Invoer-secties onder elkaar */}
+                <div className="grid grid-cols-3 gap-3 pt-1 items-center">
+                  {/* Volgnummer kolom */}
+                  <div className="space-y-1">
+                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Volgorde</span>
+                    <VolgnrInput regelId={regel.id} initialVolgnr={regel.volgnr} updateAction={updateSetRegel} />
+                  </div>
+
+                  {/* Verplicht-vinkje kolom */}
+                  <div className="space-y-1 flex flex-col items-center justify-center">
+                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Verplicht</span>
+                    <div className="pt-1">
+                      <VerplichtCheck regelId={regel.id} initialVerplicht={regel.verplicht} updateAction={updateSetRegel} />
+                    </div>
+                  </div>
+
+                  {/* Label Override kolom (pakt de resterende breedte op mobiel) */}
+                  <div className="col-span-1 space-y-1">
+                    <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Label Override</span>
+                    <div className="border border-gray-200 rounded-lg bg-gray-50 px-1">
+                      <LabelInput regelId={regel.id} initialLabel={regel.label || ""} placeholder={regel.parameterNaam} updateAction={updateSetRegel} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Lege staat melding */}
+          {regelsMetParameters.length === 0 && (
+            <div className="p-8 text-center text-gray-400 italic text-xs">
+              Dit formulier is nog leeg. Voeg hieronder een parameter toe om te starten.
+            </div>
+          )}
         </div>
 
         {/* LINKS / ZIJBALK (xl:col-span-1): Snel een nieuwe parameter toevoegen */}
