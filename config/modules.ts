@@ -1,17 +1,14 @@
-// src/config/modules.ts
-
 export interface DikisModule {
   id: string;
   title: string;
   path: string;
   icon: string;
-  pcOnly?: boolean; // Hiermee kunnen we straks specifieke beheer-schermen blokkeren op mobiel
+  pcOnly?: boolean;
 }
 
 export const DIKIS_MODULES: DikisModule[] = [
-  { id: "dashboard", title: "Dashboard", path: "/beheer", icon: "🏠" },
-  { id: "logboek", title: "Logboek Invoer", path: "/logboek", icon: "📋" },
-  { id: "meetreeksen", title: "Meetreeksen", path: "/meetreeksen", icon: "📊" },
-  { id: "inspecties", title: "Veldwerk Inspecties", path: "/inspecties", icon: "🔍" },
-  { id: "beheer", title: "Applicatie Beheer", path: "/beheer/parameter-sets", icon: "⚙️", pcOnly: true }
+  { id: "dashboard", title: "Dashboard", path: "/", icon: "🏠" }, // <-- Wijst nu puur naar de applicatieroot
+  { id: "beheer", title: "Applicatie Beheer", path: "/beheer", icon: "⚙️", pcOnly: true }, // <-- Wijst naar de basis van beheer
+  { id: "logboek", title: "Logboek Invoer", path: "/modules/logboek", icon: "📋" }, // Matcht met je fysieke mappen
+  { id: "meetreeksen", title: "Meetreeksen", path: "/modules/metingen", icon: "📊" }
 ];
