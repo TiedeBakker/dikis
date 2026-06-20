@@ -96,7 +96,7 @@ export default function RootLayout({
 
         {/* CENTRALE CONTENT CONTAINER (Gecentreerd op max 1700px met ademruimte) */}
         {/* CENTRALE INHOUD */}
-        <main className="flex-1 w-full max-w-[1700px] mx-auto p-4 md:p-8 transition-all">
+        <main className="flex-1 w-full max-w-425 mx-auto p-4 md:p-8 transition-all">
           {children}
         </main>
 

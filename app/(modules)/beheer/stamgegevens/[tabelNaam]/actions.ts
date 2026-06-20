@@ -2,7 +2,8 @@
 
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { getBeheerConfig } from "../../../lib/beheer"; // Zorg dat dit pad klopt met je lib map
+// Gecorrigeerd: Verwijst nu direct naar de lib-map via absolute import vanaf de hoofdmap
+import { getBeheerConfig } from "../../../../lib/beheer"; 
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
@@ -16,7 +17,6 @@ export async function opslaanRecord(categorieNaam: string, formData: FormData) {
   const data: Record<string, any> = {};
   config.velden.forEach((v) => {
     const val = formData.get(v.id);
-    // Verwerk checkbox expliciet naar boolean, de rest naar waarde of null
     if (v.type === "checkbox") {
       data[v.id] = val === "true";
     } else {
@@ -25,7 +25,8 @@ export async function opslaanRecord(categorieNaam: string, formData: FormData) {
   });
 
   await db.insert(targetTable).values(data);
-  revalidatePath(`/beheer/${categorieNaam}`);
+  // Gecorrigeerd naar het huidige pad in productie
+  revalidatePath(`/beheer/stamgegevens/${categorieNaam}`);
 }
 
 export async function bijwerkenRecord(categorieNaam: string, id: string, formData: FormData) {
@@ -46,5 +47,6 @@ export async function bijwerkenRecord(categorieNaam: string, id: string, formDat
   });
 
   await db.update(targetTable).set(data).where(eq(targetTable.id, id));
-  revalidatePath(`/beheer/${categorieNaam}`);
+  // Gecorrigeerd naar het huidige pad in productie
+  revalidatePath(`/beheer/stamgegevens/${categorieNaam}`);
 }
