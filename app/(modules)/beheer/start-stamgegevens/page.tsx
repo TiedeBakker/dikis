@@ -3,6 +3,8 @@ import { beheerMetadata } from "@/db/schema";
 import { sql } from "drizzle-orm";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function StartStamgegevensPage() {
   // Haal de unieke tabelnamen en labels op door te groeperen op tabel_naam
   // We pakken het minimale volgnummer om de volgorde van de tabellen zelf te kunnen sturen

@@ -1,6 +1,7 @@
 import { getGroepContext, getFormulierBlueprint, getKeuzelijstMetOpties } from "./actions";
 import TestDashboardClient from "./TestDashboardClient";
 
+export const dynamic = "force-dynamic";
 export default async function TestPage() {
   const context = await getGroepContext("groep-keuring-1");
 
