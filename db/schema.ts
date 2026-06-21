@@ -124,18 +124,18 @@ export const logboek = sqliteTable("logboek", {
 // 6. BEHEER & UI METADATA
 // ==========================================
 
-export const beheerMetadata = sqliteTable("beheer_metadata", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-  tabelNaam: text("tabel_naam").notNull(),
-  tabelLabel: text("tabel_label").notNull(),
-  veldId: text("veld_id").notNull(),
-  veldLabel: text("veld_label").notNull(),
-  veldType: text("veld_type").notNull(),
-  volgnummer: integer("volgnummer").notNull(),
-  verplicht: integer('verplicht', { mode: 'boolean' }).default(false),
-  toelichting: text("toelichting"),
-  lookupTabel: text("lookup_tabel"), 
-});
+  export const beheerMetadata = sqliteTable("beheer_metadata", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    tabelNaam: text("tabel_naam").notNull(),
+    tabelLabel: text("tabel_label").notNull(),
+    veldId: text("veld_id").notNull(),
+    veldLabel: text("veld_label").notNull(),
+    veldType: text("veld_type").notNull(),
+    volgnummer: integer("volgnummer").notNull(),
+    verplicht: integer('verplicht', { mode: 'boolean' }).default(false),
+    toelichting: text("toelichting"),
+    lookupTabel: text("lookup_tabel"), 
+  });
 
 
 // Registreer de SQL view die je in Turso hebt aangemaakt

@@ -49,7 +49,7 @@ export default function MetingenForm({ personen, gebouwen, parameters, actie }: 
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <h2 className="text-xl font-bold mb-4 text-blue-900">Nieuwe Meting 123</h2>
+      <h2 className="text-xl font-bold mb-4 text-blue-900">Nieuwe Meting</h2>
 
       <form
         ref={formRef}
